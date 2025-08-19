@@ -1,0 +1,24 @@
+<!-- app/src/main/res/layout/activity_main.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:padding="16dp"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <Button
+        android:id="@+id/btnPick"
+        android:text="갤러리에서 사진 선택"
+        android:layout_width="match_parent" android:layout_height="wrap_content"/>
+
+    <ImageView
+        android:id="@+id/preview"
+        android:layout_width="match_parent" android:layout_height="200dp"
+        android:scaleType="centerCrop"
+        android:layout_marginTop="12dp"/>
+
+    <TextView
+        android:id="@+id/tvResult"
+        android:layout_width="match_parent" android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="12dp"
+        android:textIsSelectable="true"
+        android:textSize="14sp"/>
+</LinearLayout>
