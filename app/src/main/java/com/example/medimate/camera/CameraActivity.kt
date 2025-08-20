@@ -1,82 +1,35 @@
-package com.example.medimate.camera
+package com.example.medimate
 
-import android.Manifest
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.example.medimate.alarm.AlarmListActivity
-import com.example.medimate.camera.CameraOptionsBottomSheet
-import com.example.medimate.databinding.ActivityHomeBinding
+import com.example.medimate.camera.CameraOptionsActivity // CameraOptionsActivity 경로 확인
+import com.example.medimate.databinding.ActivityHomeBinding // ViewBinding 클래스
 
-// 1. BottomSheet의 리스너를 상속받도록 수정
-class CameraActivity : AppCompatActivity(), CameraOptionsBottomSheet.CameraOptionsListener {
+class CameraActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityHomeBinding
-
-    //2. 갤러리와 카메라 결과를 처리할 '런처'들을 등록
-
-    // 갤러리 런처
-    private val galleryLauncher =
-        registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-            if (uri != null) {
-                // 이미지가 성공적으로 선택됨
-                // TODO: 여기서 OCR 처리 화면으로 uri를 전달합니다.
-                Toast.makeText(this, "이미지 선택 완료: $uri", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-    // 카메라 런처 (단순 실행)
-    private val cameraLauncher =
-        registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
-            if (bitmap != null) {
-                // 사진이 성공적으로 촬영됨
-                // TODO: 여기서 OCR 처리 화면으로 bitmap을 전달합니다.
-                Toast.makeText(this, "사진 촬영 완료!", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-    // 권한 요청 런처
-    private val permissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (isGranted) {
-                // 권한이 허용되면 카메라 실행
-                cameraLauncher.launch(null)
-            } else {
-                Toast.makeText(this, "카메라 권한이 필요합니다.", Toast.LENGTH_SHORT).show()
-            }
-        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // (기존 코드)
-        binding.btnAlarm.setOnClickListener {
-            startActivity(Intent(this, AlarmListActivity::class.java))
-        }
-
-        // --- ▼▼ 3. BottomSheet를 생성하고 리스너를 연결 ▼▼ ---
+        // '카메라 옵션 화면으로 이동' 버튼 클릭 리스너
+        // activity_home.xml 파일에 있는 버튼의 ID가 btnCamera라고 가정합니다.
         binding.btnCamera.setOnClickListener {
-            val bottomSheet = CameraOptionsBottomSheet()
-            bottomSheet.setListener(this) // "내가 너의 신호를 받을게" 라고 설정
-            bottomSheet.show(supportFragmentManager, CameraOptionsBottomSheet.TAG)
+            val intent = Intent(this, CameraOptionsActivity::class.java)
+            startActivity(intent)
         }
-    }
 
-    // --- ▼▼ 4. BottomSheet의 신호를 받았을 때 실행될 함수들 구현 ▼▼ ---
+        // '알람 목록 화면으로 이동' 버튼 클릭 리스너 (선택 사항 - 기존 코드에 있었다면 유지)
+        // activity_home.xml 파일에 있는 버튼의 ID가 btnAlarm이라고 가정합니다.
+        // 만약 이 버튼이 없다면 이 부분은 삭제해도 됩니다.
+        binding.btnAlarm?.setOnClickListener { // btnAlarm이 레이아웃에 없을 수도 있으므로 안전 호출 사용
+            val intent = Intent(this, AlarmListActivity::class.java) // AlarmListActivity 경로 확인
+            startActivity(intent)
+        }
 
-    // '사진 촬영' 버튼이 눌렸을 때
-    override fun onTakePhotoClicked() {
-        // 카메라 권한을 확인하고, 없으면 요청, 있으면 바로 실행
-        permissionLauncher.launch(Manifest.permission.CAMERA)
-    }
-
-    // '앨범에서 선택' 버튼이 눌렸을 때
-    override fun onOpenGalleryClicked() {
-        // 갤러리 런처 실행 (모든 이미지 타입)
-        galleryLauncher.launch("image/*")
+        // 여기에 HomeActivity의 다른 초기화 로직이나 UI 이벤트 핸들러를 추가할 수 있습니다.
     }
 }

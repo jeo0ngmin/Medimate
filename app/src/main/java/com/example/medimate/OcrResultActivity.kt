@@ -1,20 +1,32 @@
-package com.example.medimate
+package com.example.medimate // 실제 패키지명으로 변경
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+
+
 
 class OcrResultActivity : AppCompatActivity() {
+
+    private lateinit var tvOcrResult: TextView
+
+    companion object {
+        const val EXTRA_OCR_TEXT = "com.example.medimate.EXTRA_OCR_TEXT" // Intent의 Key 값
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_ocr_result)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+        setContentView(R.layout.activity_ocr_result) // 위에서 만든 레이아웃 파일
+
+        tvOcrResult = findViewById(R.id.tvOcrResult)
+
+        val recognizedText = intent.getStringExtra(EXTRA_OCR_TEXT)
+
+        if (recognizedText != null) {
+            tvOcrResult.text = recognizedText
+        } else {
+            tvOcrResult.text = "인식된 텍스트가 없습니다."
         }
     }
 }

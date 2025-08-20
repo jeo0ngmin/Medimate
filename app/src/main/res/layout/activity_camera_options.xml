@@ -9,6 +9,7 @@
         android:id="@+id/btn_close_sheet"
         android:layout_width="24dp"
         android:layout_height="24dp"
+        android:layout_marginTop="10dp"
         android:src="@drawable/ic_close"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

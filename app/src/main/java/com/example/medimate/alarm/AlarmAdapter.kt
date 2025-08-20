@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.medimate.databinding.ItemAlarmBinding
+import com.example.medimate.AlarmSettingActivity // 실제 패키지 경로로 수정
 
 // 데이터 모양 정의
 data class Alarm(

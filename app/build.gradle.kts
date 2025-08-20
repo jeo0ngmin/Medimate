@@ -56,8 +56,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
 
-    implementation("com.google.mlkit:text-recognition-korean:16.0.0-beta6")
-    implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.0")
+    implementation("com.google.mlkit:text-recognition-korean:16.0.1")
+    implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.1")
     implementation("androidx.activity:activity-ktx:1.10.1")
 
 
