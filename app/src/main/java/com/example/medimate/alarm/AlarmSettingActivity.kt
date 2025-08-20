@@ -1,12 +1,17 @@
-package com.example.medimate.alarm
+package com.example.medimate
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.app.TimePickerDialog
+import android.content.Context
+import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.example.medimate.R
+import android.widget.Toast
 import com.example.medimate.databinding.ActivityAlarmSettingBinding
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.button.MaterialButtonToggleGroup
 import java.util.Calendar
+import java.util.Locale
 
 class AlarmSettingActivity : AppCompatActivity() {
 
@@ -19,64 +24,90 @@ class AlarmSettingActivity : AppCompatActivity() {
         binding = ActivityAlarmSettingBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // ▼▼ '닫기' 버튼 텍스트 수정 ▼▼
-        binding.btnCancel.text = "닫기"
+        // 현재 시간으로 변수 초기화 및 화면 업데이트
+        val calendar = Calendar.getInstance()
+        alarmHour = calendar.get(Calendar.HOUR_OF_DAY)
+        alarmMinute = calendar.get(Calendar.MINUTE)
+        updateUITime(alarmHour, alarmMinute)
 
-        // 알림 목록에서 전달받은 기존 알람 데이터가 있는지 확인
-        val existingTime = intent.getStringExtra("EXISTING_ALARM_TIME")
-        val existingDays = intent.getBooleanArrayExtra("EXISTING_ALARM_DAYS_BOOLEAN")
-
-        if (existingTime != null && existingDays != null) {
-            // 전달받은 데이터로 UI 설정
-            // TODO: "오전 9:00" 같은 문자열을 파싱해서 alarmHour, alarmMinute에 설정해야 함
-            updateUITime(alarmHour, alarmMinute) // 임시로 현재 시간 표시
-            binding.tvTimeValue.text = existingTime
-            updateDaysUI(existingDays)
-        } else {
-            // 새 알람 설정 시: 현재 시간으로 초기화
-            val calendar = Calendar.getInstance()
-            alarmHour = calendar.get(Calendar.HOUR_OF_DAY)
-            alarmMinute = calendar.get(Calendar.MINUTE)
-            updateUITime(alarmHour, alarmMinute)
+        // 시간 텍스트를 누르면 TimePickerDialog 실행
+        binding.tvTimeValue.setOnClickListener {
+            showTimePicker()
         }
 
-        binding.tvTimeValue.setOnClickListener { showTimePicker() }
-        binding.btnEveryday.setOnClickListener { binding.toggleGroupDays.checkAll() }
-        binding.btnWeekends.setOnClickListener {
-            binding.toggleGroupDays.clearChecked()
-            binding.toggleGroupDays.check(R.id.btn_sun)
-            binding.toggleGroupDays.check(R.id.btn_sat)
+        // 확인 버튼
+        binding.btnConfirm.setOnClickListener {
+            scheduleAlarm()
         }
-        binding.btnConfirm.setOnClickListener { scheduleAlarm() }
-        binding.btnCancel.setOnClickListener { finish() }
+        // 취소 버튼 (닫기)
+        binding.btnCancel.setOnClickListener {
+            finish()
+        }
     }
 
-    // 전달받은 요일 배열로 토글 버튼 상태 업데이트
-    private fun updateDaysUI(days: BooleanArray) {
-        val dayButtons = listOf(
-            binding.btnSun, binding.btnMon, binding.btnTue, binding.btnWed,
-            binding.btnThu, binding.btnFri, binding.btnSat
+    // 동그란 시간 선택창을 보여주는 함수
+    private fun showTimePicker() {
+        val timePickerDialog = TimePickerDialog(
+            this,
+            { _, hourOfDay, minute ->
+                // 사용자가 선택한 시간으로 변수 업데이트 및 화면 새로고침
+                alarmHour = hourOfDay
+                alarmMinute = minute
+                updateUITime(hourOfDay, minute)
+            },
+            alarmHour,
+            alarmMinute,
+            false // 24시간 형식이 아닌 AM/PM 형식 사용
         )
-        days.forEachIndexed { index, isSelected ->
-            if (isSelected) {
-                binding.toggleGroupDays.check(dayButtons[index].id)
-            } else {
-                binding.toggleGroupDays.uncheck(dayButtons[index].id)
-            }
-        }
+        timePickerDialog.show()
     }
 
-    private fun showTimePicker() { /* 이전과 동일 */ }
-    private fun updateUITime(hour: Int, minute: Int) { /* 이전과 동일 */ }
-    private fun scheduleAlarm() { /* 이전과 동일 */ }
-
-    // 모든 버튼을 체크하는 확장 함수
-    private fun MaterialButtonToggleGroup.checkAll() {
-        for (i in 0 until childCount) {
-            val button = getChildAt(i) as MaterialButton
-            this.check(button.id)
+    // 선택된 시간을 화면의 텍스트에 예쁘게 표시하는 함수
+    private fun updateUITime(hour: Int, minute: Int) {
+        val calendar = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, hour)
+            set(Calendar.MINUTE, minute)
         }
+        val amPm = if (calendar.get(Calendar.AM_PM) == Calendar.AM) "오전" else "오후"
+        val displayHour = if (calendar.get(Calendar.HOUR) == 0) 12 else calendar.get(Calendar.HOUR)
+        binding.tvTimeValue.text = String.format(Locale.getDefault(), "%s %d:%02d", amPm, displayHour, minute)
     }
 
-    companion object { /* 이전과 동일 */ }
+    // 알람을 시스템에 등록하는 함수
+    private fun scheduleAlarm() {
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(this, AlarmReceiver::class.java)
+
+        // ▼▼ 요일 선택이 없어졌으므로, '매일'을 의미하는 Boolean 배열을 직접 생성 ▼▼
+        val everyDay = BooleanArray(7) { true }
+        intent.putExtra("SELECTED_DAYS", everyDay)
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            this,
+            System.currentTimeMillis().toInt(), // requestCode를 고유하게 설정
+            intent,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE else PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        val calendar = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, alarmHour)
+            set(Calendar.MINUTE, alarmMinute)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+
+        if (calendar.before(Calendar.getInstance())) {
+            calendar.add(Calendar.DATE, 1)
+        }
+
+        alarmManager.setInexactRepeating(
+            AlarmManager.RTC_WAKEUP,
+            calendar.timeInMillis,
+            AlarmManager.INTERVAL_DAY,
+            pendingIntent
+        )
+
+        Toast.makeText(this, "알람이 설정되었습니다.", Toast.LENGTH_SHORT).show()
+        finish()
+    }
 }

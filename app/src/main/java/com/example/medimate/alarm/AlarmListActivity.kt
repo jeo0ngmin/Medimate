@@ -1,5 +1,6 @@
-package com.example.medimate.alarm
+package com.example.medimate
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -14,13 +15,19 @@ class AlarmListActivity : AppCompatActivity() {
         binding = ActivityAlarmListBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // 뒤로가기 버튼
         binding.ivBack.setOnClickListener {
             finish()
         }
 
-        // 새로운 데이터 구조에 맞는 샘플 데이터 생성
-        // BooleanArray(7) { true } -> 모든 요일이 true인 배열
-        // booleanArrayOf(false, true, true, true, true, true, false) -> 월~금만 true
+        // 오른쪽 위 '+' 버튼 클릭 리스너
+        binding.ivAddAlarm.setOnClickListener {
+            val intent = Intent(this, AlarmSettingActivity::class.java)
+            startActivity(intent)
+        }
+
+
+        // 샘플 데이터 (이 부분은 기존과 동일합니다)
         val sampleAlarms = listOf(
             Alarm(
                 time = "오전 9:00",
@@ -39,7 +46,7 @@ class AlarmListActivity : AppCompatActivity() {
             )
         )
 
-        // 어댑터를 생성하고 RecyclerView에 연결
+        // RecyclerView 설정 (이 부분은 기존과 동일합니다)
         val alarmAdapter = AlarmAdapter(sampleAlarms)
         binding.rvAlarms.adapter = alarmAdapter
         binding.rvAlarms.layoutManager = LinearLayoutManager(this)
