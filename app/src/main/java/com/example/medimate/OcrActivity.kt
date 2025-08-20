@@ -25,12 +25,11 @@ class MainActivity : ComponentActivity() {
         ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
         uri?.let {
-            // 여기서 Intent 상수가 필요 -> import android.content.Intent
             try {
                 contentResolver.takePersistableUriPermission(
                     it, Intent.FLAG_GRANT_READ_URI_PERMISSION
                 )
-            } catch (_: Exception) { /* 이미 권한 있음 등 예외 무시 가능 */ }
+            } catch (_: Exception) {}
 
             showPreview(it)
             runOcr(it)
