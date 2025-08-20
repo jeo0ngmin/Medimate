@@ -1,68 +1,170 @@
 package com.example.medimate.tts
 
-data class MedInfo(
-    val name: String? = null,
-    val form: String? = null,
-    val strength: String? = null,
-    val doseCount: Int? = null,
-    val doseUnit: String? = null,
-    val timesPerDay: Int? = null,
-    val schedules: List<String> = emptyList(),
-    val totalDays: Int? = null,
-    val storage: String? = null,
-    val cautions: List<String> = emptyList()
-)
+/**
+ * OCR 원문에서 복약 핵심 정보를 뽑아내는 보편 파서
+ * - 특정 양식(표/열)에 덜 의존, 한국어 키워드/정규식을 폭넓게 사용
+ */
+object OCRParser {
 
-data class ParseResult(
-    val medList: List<MedInfo>,
-    val globalCautions: List<String> = emptyList()
-)
+    // ---------- 공개 데이터 모델 ----------
+    data class ParsedResult(
+        val drugNames: List<String>,   // 약품명 후보들
+        val timesPerDay: Int?,         // 1일 복용 횟수 (ex. 3)
+        val mealHints: List<String>,   // 아침/점심/저녁/취침 전/식전/식후/직후/30분 등
+        val doseText: String?,         // 1회 용량 텍스트 (ex. "1정", "2캡슐")
+        val totalDays: Int?,           // 총 복용 일수 (ex. 3)
+        val cautions: List<String>     // 주의사항 키워드 문구
+    )
 
-object OcrParser {
-    private fun preprocess(raw: String): String {
-        var t = raw.replace("\r", " ").replace("\n", " ")
-            .replace(Regex("\\s+"), " ").trim()
-        t = t.replace("O", "0")
-            .replace("l회", "1회").replace("I회", "1회")
-            .replace("하루 l회", "하루 1회")
-            .replace("식 전", "식전").replace("식 후", "식후")
-        return t
+    // ---------- 외부 진입 ----------
+    fun parse(raw: String): ParsedResult {
+        val text = normalize(raw)
+
+        val drugs      = extractDrugNames(text)
+        val times      = extractTimesPerDay(text)
+        val meals      = extractMealHints(text)
+        val dose       = extractDose(text)
+        val days       = extractTotalDays(text)
+        val cautions   = extractCautions(text)
+
+        return ParsedResult(
+            drugNames  = drugs,
+            timesPerDay = times,
+            mealHints   = meals,
+            doseText    = dose,
+            totalDays   = days,
+            cautions    = cautions
+        )
     }
 
-    private val nameFormStrength = Regex("""([가-힣A-Za-z0-9/\-+().]+)\s*(\d+\s?mg)?\s*(정제|정|캡슐|환|시럽|액)?""")
-    private val dosePerInt = Regex("""1\s*회\s*(?:투약량\s*)?(\d+)\s*(정|캡슐|알|ml)?""")
-    private val timesPerDay = Regex("""(?:하루|1일)\s*(\d+)\s*회""")
-    private val schedules = Regex("""(아침|점심|저녁|취침전|식전|식후)""")
-    private val totalDays = Regex("""(?:총투여일수|총)\s*(\d+)\s*일""")
-    private val storage = Regex("""(실온보관|냉장보관)""")
-    private val cautionList = listOf("운전", "졸음", "음주", "주의", "기계조작")
+    // ---------- 전처리 ----------
+    private fun normalize(src: String): String {
+        return src
+            .replace("\r", " ")
+            .replace("\n", " ")
+            .replace("""\s+""".toRegex(), " ")
+            .replace("１","1").replace("２","2").replace("３","3").replace("４","4")
+            .replace("５","5").replace("６","6").replace("７","7").replace("８","8").replace("９","9").replace("０","0")
+            .trim()
+    }
 
-    fun parse(raw: String): ParseResult {
-        val text = preprocess(raw)
-        val meds = mutableListOf<MedInfo>()
-        val globalCautions = mutableSetOf<String>()
+    // ---------- 약품명 ----------
+    /**
+     * 약품명: ‘~~정’, ‘~~캡슐’, ‘~~서방정’, ‘~~장용정’, ‘~~액/현탁액/시럽’ 같은 꼬리표 + 용량(mg/ml/㎎/㎖) 패턴
+     * 너무 공격적으로 캐치하면 일반 단어도 잡히므로, 뒤에 용량 단위를 가능하면 동반하도록 함
+     */
+    private fun extractDrugNames(text: String): List<String> {
+        val tail = "(정|정제|캡슐|서방정|장용정|현탁액|시럽|액|과립|산|연질캡슐)"
+        val unit = "(?:mg|㎎|g|mcg|㎍|µg|ml|mL|㎖)"
+        val nameRegex = Regex("""([가-힣A-Za-z0-9\-\+\(\)·]+)$tail?\s*\d+(?:\.\d+)?\s*$unit""")
 
-        // 간단하게 문장 단위 split
-        val blocks = text.split(Regex("[.;]")).map { it.trim() }
-        for (block in blocks) {
-            val m = nameFormStrength.find(block) ?: continue
-            val name = m.groupValues.getOrNull(1)
-            val strength = m.groupValues.getOrNull(2)
-            val form = m.groupValues.getOrNull(3)
+        val found = nameRegex.findAll(text)
+            .map { it.groupValues[1] }
+            .map { it.trim() }
+            .filter { it.length in 2..40 }
+            .distinct()
+            .toList()
 
-            val dose = dosePerInt.find(block)
-            val doseCount = dose?.groupValues?.getOrNull(1)?.toIntOrNull()
-            val doseUnit = dose?.groupValues?.getOrNull(2)
+//        // 보조: 표 왼쪽 '약품명/성분' 라벨 근처의 단어들도 후보로
+//        val hintRegex = Regex("""약품명|약품|성분""")
+//        val bonus = mutableListOf<String>()
+//        if (hintRegex.containsMatchIn(text)) {
+//            // ‘정/캡슐’이 붙지 않아도 단어 2~5글자짜리 한글/영문 토큰을 추가 후보로
+//            val token = Regex("""[가-힣A-Za-z]{2,10}""")
+//            bonus += token.findAll(text).map { it.value }
+//                .filter { it.length in 2..12 }
+//                .take(20)
+//        }
 
-            val times = timesPerDay.find(block)?.groupValues?.getOrNull(1)?.toIntOrNull()
-            val scheds = schedules.findAll(block).map { it.value }.toList()
-            val days = totalDays.find(block)?.groupValues?.getOrNull(1)?.toIntOrNull()
-            val store = storage.find(block)?.value
-            val cauts = cautionList.filter { block.contains(it) }
+        return (found)
+            .distinct()
+            .take(15)
+    }
 
-            meds += MedInfo(name, form, strength, doseCount, doseUnit, times, scheds, days, store, cauts)
-            globalCautions += cauts
+    // ---------- 1일 복용 횟수 ----------
+    /** 예: "1일 3회", "하루 2회", "하루 세 번", "1日3回" */
+    private fun extractTimesPerDay(text: String): Int? {
+        // 숫자 표기
+        val n1 = Regex("""(?:1일|하루|1日)\s*([0-9]+)\s*(?:회|번)""").find(text)?.groupValues?.getOrNull(1)?.toIntOrNull()
+        if (n1 != null) return n1
+        // 한글 수사
+        val map = mapOf("한" to 1, "두" to 2, "세" to 3, "네" to 4, "다섯" to 5)
+        val n2 = Regex("""(?:1일|하루)\s*([가-힣]+)\s*(?:회|번)""").find(text)?.groupValues?.getOrNull(1)?.let { map[it] }
+        if (n2 != null) return n2
+        // 표 형태: ‘횟수 3’ 같이 붙는 경우
+        val n3 = Regex("""(?:횟수|회수)\s*([0-9]+)""").find(text)?.groupValues?.getOrNull(1)?.toIntOrNull()
+        return n3
+    }
+
+    // ---------- 복용 시간/식사 힌트 ----------
+    private val mealKeywords = listOf(
+        "아침", "점심", "저녁", "취침 전", "취침전", "취침",
+        "식전", "식후", "식사 전", "식사전", "식사 후", "식사후", "직후", "30분", "30 분"
+    )
+    private fun extractMealHints(text: String): List<String> {
+        val hits = mutableListOf<String>()
+        // 대표 시간대
+        if (text.contains("아침")) hits += "아침"
+        if (text.contains("점심")) hits += "점심"
+        if (text.contains("저녁")) hits += "저녁"
+        if (text.contains("취침 전") || text.contains("취침전") || text.contains("취침")) hits += "취침 전"
+
+        // 식사 관련
+        val meal = mutableListOf<String>()
+        if (Regex("""식전|식사\s*전""").containsMatchIn(text)) meal += "식전"
+        if (Regex("""식후|식사\s*후|직후""").containsMatchIn(text)) meal += "식후"
+        if (Regex("""30\s*분""").containsMatchIn(text)) meal += "30분"
+
+        // 순서를 보기 좋게 결합
+        val timePart = hits.distinct()
+        val mealPart = meal.distinct()
+        return (timePart + mealPart).distinct()
+    }
+
+    // ---------- 1회 용량 ----------
+    /** 예: "1정", "2 캡슐", "5 mL" */
+    private fun extractDose(text: String): String? {
+        val m1 = Regex("""([0-9]+)\s*(정|캡슐|포|회|mL|ml|㎖)""").find(text)?.let {
+            it.groupValues[1] + it.groupValues[2]
         }
-        return ParseResult(meds, globalCautions.toList())
+        if (m1 != null) return m1
+
+        // ‘투약량 1정’ 같은 표기
+        val m2 = Regex("""투약량\s*([0-9]+)\s*(정|캡슐|포|mL|ml|㎖)""").find(text)?.let {
+            it.groupValues[1] + it.groupValues[2]
+        }
+        return m2
+    }
+
+    // ---------- 총 복용 일수 ----------
+    /** 예: "총투여일수 3일", "3일분", "총 5 일" */
+    private fun extractTotalDays(text: String): Int? {
+        val r1 = Regex("""총\s*투여\s*일수\s*([0-9]+)\s*일""").find(text)?.groupValues?.getOrNull(1)?.toIntOrNull()
+        if (r1 != null) return r1
+        val r2 = Regex("""([0-9]+)\s*일\s*분""").find(text)?.groupValues?.getOrNull(1)?.toIntOrNull()
+        if (r2 != null) return r2
+        val r3 = Regex("""총\s*([0-9]+)\s*일""").find(text)?.groupValues?.getOrNull(1)?.toIntOrNull()
+        return r3
+    }
+
+    // ---------- 주의사항 ----------
+    private val cautionDict = listOf(
+        "어지러움", "졸음", "운전", "기계조작", "위장장애", "속쓰림", "구역", "구토",
+        "혈압", "저혈당", "출혈", "알레르기", "발진", "가려움", "간장", "신장", "음주",
+        "임신", "수유", "변비", "설사", "빈뇨", "야간뇨", "부종", "체중증가"
+    )
+    private fun extractCautions(text: String): List<String> {
+        val hits = cautionDict.filter { text.contains(it) }
+        // 간단한 문장화
+        val sentences = hits.map { keyword ->
+            when (keyword) {
+                "운전" -> "운전이나 기계 조작 시 주의하세요"
+                "졸음" -> "졸음이 올 수 있어 주의하세요"
+                "어지러움" -> "어지러움이 나타나면 앉아서 쉬세요"
+                "위장장애" -> "위장장애가 있으면 전문의와 상의하세요"
+                else -> "$keyword 관련 증상에 주의하세요"
+            }
+        }
+        return sentences.distinct()
     }
 }
