@@ -21,9 +21,12 @@ class HomeActivity : AppCompatActivity(), CameraOptionsBottomSheet.CameraOptions
     private val galleryLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             if (uri != null) {
-                Toast.makeText(this, "이미지를 선택했습니다.", Toast.LENGTH_SHORT).show()
-                // 예: val intent = Intent(this, OcrActivity::class.java).apply { data = uri }
-                //     startActivity(intent)
+                val intent = Intent(this, OcrActivity::class.java).apply {
+                    data = uri
+                    // ▼▼ OcrActivity에 이미지 읽기 권한을 부여하는 플래그를 추가합니다. ▼▼
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+                startActivity(intent)
             }
         }
 
