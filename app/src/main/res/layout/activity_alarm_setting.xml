@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp"
+    tools:context=".AlarmSettingActivity">
+
+    <TextView
+        android:id="@+id/tv_time_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:textColor="@android:color/black"
+        android:textSize="48sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="오후 2:08" />
+
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/toggle_group_days"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_time_value"
+        app:selectionRequired="true"
+        app:singleSelection="false">
+
+        <Button style="?attr/materialButtonOutlinedStyle" android:id="@+id/btn_sun" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="일"/>
+        <Button style="?attr/materialButtonOutlinedStyle" android:id="@+id/btn_mon" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="월"/>
+        <Button style="?attr/materialButtonOutlinedStyle" android:id="@+id/btn_tue" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="화"/>
+        <Button style="?attr/materialButtonOutlinedStyle" android:id="@+id/btn_wed" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="수"/>
+        <Button style="?attr/materialButtonOutlinedStyle" android:id="@+id/btn_thu" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="목"/>
+        <Button style="?attr/materialButtonOutlinedStyle" android:id="@+id/btn_fri" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="금"/>
+        <Button style="?attr/materialButtonOutlinedStyle" android:id="@+id/btn_sat" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="토"/>
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    <Button
+        android:id="@+id/btn_everyday"
+        style="?attr/borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="매일"
+        app:layout_constraintEnd_toStartOf="@id/btn_weekends"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toggle_group_days" />
+
+    <Button
+        android:id="@+id/btn_weekends"
+        style="?attr/borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="주말"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btn_everyday"
+        app:layout_constraintTop_toTopOf="@id/btn_everyday" />
+
+    <Button
+        android:id="@+id/btn_confirm"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="확인"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btn_cancel" />
+
+    <Button
+        android:id="@+id/btn_cancel"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:text="취소"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btn_confirm"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
