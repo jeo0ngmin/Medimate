@@ -86,7 +86,7 @@ class CameraOptionsActivity : AppCompatActivity() { // AppCompatActivity 상속
         // 닫기 버튼 (예: 제목 표시줄의 뒤로가기 버튼이나, 레이아웃에 직접 추가한 버튼)
         // 만약 레이아웃에 btnCloseSheet 같은 ID의 버튼이 있다면:
         binding.btnCloseSheet.setOnClickListener {
-             finish()
+            finish()
         }
         // 또는 ActionBar의 뒤로가기 버튼을 활성화하려면 테마 및 코드 설정 필요
         supportActionBar?.setDisplayHomeAsUpEnabled(true) // ActionBar 뒤로가기 버튼 (테마에서 ActionBar가 활성화 되어있어야 함)

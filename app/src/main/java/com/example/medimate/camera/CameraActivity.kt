@@ -3,8 +3,10 @@ package com.example.medimate
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.example.medimate.alarm.AlarmListActivity
 import com.example.medimate.camera.CameraOptionsActivity // CameraOptionsActivity 경로 확인
 import com.example.medimate.databinding.ActivityHomeBinding // ViewBinding 클래스
+import kotlin.jvm.java
 
 class CameraActivity : AppCompatActivity() {
 

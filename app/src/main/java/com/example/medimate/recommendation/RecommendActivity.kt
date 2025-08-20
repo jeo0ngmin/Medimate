@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 
 class RecommendActivity : AppCompatActivity() {
     private val apiKey = "5vdpC0fiXEBDtS8A/bOV5Ql5cWmDmsIKEcpv4bryubBdLpyXAnET8rszjBUPgqHL3uCOgQhz2GDc/aI3x1CHQg==" //디코딩 서비스 키
-   
+
     //페이징(Paging)기능 관리를 위한 변수들
     private var currentPage = 1
     private var totalCount = 0
@@ -35,7 +35,7 @@ class RecommendActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        //스크롤해도 위에 있던 데이터가 삭제되지 않는 목록
+
         setupRecyclerView()
         loadProducts(currentPage)
     }
@@ -70,7 +70,7 @@ class RecommendActivity : AppCompatActivity() {
         })
     }
 
-    //API를 통해 제품 데이터 로드하고 필러팅하는 함수
+    //API를 통해 제품 데이터 로드하고 필터링하는 함수
     private fun loadProducts(pageNo: Int) {
         if (isLoading) return
         isLoading = true
@@ -86,7 +86,11 @@ class RecommendActivity : AppCompatActivity() {
                 val recommendedProducts = filterProducts(fetchedProducts, symptoms) //키워드 필터링
 
                 if (recommendedProducts.isNotEmpty()) {
-                    productAdapter.addProducts(recommendedProducts) //어댑터에 제품 추가
+                    // ▼▼ 여기가 수정된 부분입니다! ▼▼
+                    // 1. Activity가 관리하는 원본 리스트에도 데이터를 추가합니다.
+                    productList.addAll(recommendedProducts)
+                    // 2. 어댑터에 데이터를 추가하여 화면에 표시하도록 알립니다.
+                    productAdapter.addProducts(recommendedProducts)
                 }
 
                 if (productList.isEmpty() && recommendedProducts.isEmpty() && productList.size < totalCount) {

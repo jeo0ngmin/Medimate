@@ -1,4 +1,4 @@
-package com.example.medimate
+package com.example.medimate.alarm
 
 import android.app.AlarmManager
 import android.app.PendingIntent
@@ -9,7 +9,9 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
-import com.example.medimate.alarm.AlarmReceiver
+import androidx.activity.enableEdgeToEdge
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.example.medimate.databinding.ActivityAlarmSettingBinding
 import java.util.Calendar
 import java.util.Locale
@@ -22,8 +24,15 @@ class AlarmSettingActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         binding = ActivityAlarmSettingBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
 
         // 현재 시간으로 변수 초기화 및 화면 업데이트
         val calendar = Calendar.getInstance()
