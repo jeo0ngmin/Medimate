@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.example.medimate.alarm.AlarmListActivity
+import com.example.medimate.AlarmListActivity
 import com.example.medimate.camera.CameraOptionsBottomSheet
 import com.example.medimate.databinding.ActivityHomeBinding
 

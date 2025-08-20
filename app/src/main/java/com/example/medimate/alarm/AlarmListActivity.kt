@@ -4,6 +4,8 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.medimate.alarm.Alarm
+import com.example.medimate.alarm.AlarmAdapter
 import com.example.medimate.databinding.ActivityAlarmListBinding
 
 class AlarmListActivity : AppCompatActivity() {

@@ -7,6 +7,10 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import androidx.activity.ComponentActivity
+import com.example.medimate.tts.OcrParser
+import com.example.medimate.tts.TTSSpeechBuilder
+import com.example.medimate.tts.TTSApi
 import com.example.medimate.HomeActivity
 
 class MainActivity : AppCompatActivity() {
@@ -28,5 +32,7 @@ class MainActivity : AppCompatActivity() {
             finish()
 
         }, 3000) // 딜레이 시간 (3000ms = 3초)
+
+
     }
 }

@@ -9,6 +9,7 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import com.example.medimate.alarm.AlarmReceiver
 import com.example.medimate.databinding.ActivityAlarmSettingBinding
 import java.util.Calendar
 import java.util.Locale

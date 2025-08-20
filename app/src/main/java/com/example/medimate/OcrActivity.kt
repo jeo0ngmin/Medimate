@@ -41,12 +41,12 @@ class OcrActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.bottom_sheet_camera_options)
 
-        preview = findViewById(R.id.preview)
-        tvResult = findViewById(R.id.tvResult)
-
-        findViewById<Button>(R.id.btnPick).setOnClickListener {
-            pickImage.launch(arrayOf("image/*"))
-        }
+//        preview = findViewById(R.id.preview)
+//        tvResult = findViewById(R.id.tvResult)
+//
+//        findViewById<Button>(R.id.btnPick).setOnClickListener {
+//            pickImage.launch(arrayOf("image/*"))
+//        }
     }
 
     private fun showPreview(uri: Uri) {
