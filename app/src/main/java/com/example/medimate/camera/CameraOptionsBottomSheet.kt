@@ -1,6 +1,5 @@
-// CameraOptionsBottomSheet.kt
-package com.example.medimate
-//
+package com.example.medimate.camera
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
