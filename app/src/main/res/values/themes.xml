@@ -1,9 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.Medimate" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
+    <style name="Theme.Medimate" parent="Theme.Material3.DayNight.NoActionBar">
     </style>
 
-    <style name="Theme.Medimate" parent="Base.Theme.Medimate" />
+    <style name="DayOfWeekTextView">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:layout_marginEnd">8dp</item>
+    </style>
+
 </resources>

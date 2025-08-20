@@ -12,11 +12,12 @@ import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.korean.KoreanTextRecognizerOptions
 
-class MainActivity : ComponentActivity() {
+class OcrActivity : AppCompatActivity() {
 
     private lateinit var preview: ImageView
     private lateinit var tvResult: TextView
@@ -39,7 +40,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.bottom_sheet_camera_options)
 
         preview = findViewById(R.id.preview)
         tvResult = findViewById(R.id.tvResult)
