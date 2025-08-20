@@ -1,11 +1,12 @@
-package com.example.medimate
+package com.example.medimate.alarm
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.activity.enableEdgeToEdge
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.medimate.alarm.Alarm
-import com.example.medimate.alarm.AlarmAdapter
 import com.example.medimate.databinding.ActivityAlarmListBinding
 
 class AlarmListActivity : AppCompatActivity() {
@@ -14,8 +15,16 @@ class AlarmListActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+
         binding = ActivityAlarmListBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
 
         // 뒤로가기 버튼
         binding.ivBack.setOnClickListener {

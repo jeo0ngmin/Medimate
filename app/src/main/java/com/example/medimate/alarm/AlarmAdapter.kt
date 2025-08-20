@@ -7,7 +7,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.example.medimate.AlarmSettingActivity
+import com.example.medimate.alarm.AlarmSettingActivity
 import com.example.medimate.databinding.ItemAlarmBinding
 
 // 데이터 모양 정의
