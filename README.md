@@ -1,3 +1,3 @@
 # Medimate
-화이팅 ٩(ˊᗜˋ*)و
+Android Stuio 환경에서 개발되었습니다.
 [app](app)
