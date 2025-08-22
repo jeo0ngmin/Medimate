@@ -1,9 +1,5 @@
 package com.example.medimate.tts
 
-/**
- * OCRParser.ParsedResult -> TTS 낭독용 문장 리스트로 변환
- * - 핵심만 간결하게, 약 이름은 전부 나열
- */
 object TTSSpeechBuilder {
 
     fun toSpeechLines(r: OCRParser.ParsedResult): List<String> {
@@ -66,7 +62,6 @@ object TTSSpeechBuilder {
         }
     }
 
-    /** 한국어 나열: [아침, 점심, 저녁] -> "아침, 점심, 저녁" / [아침, 저녁] -> "아침, 저녁" */
     private fun joinKoreanList(list: List<String>): String {
         val d = list.map { it.trim() }.filter { it.isNotEmpty() }.distinct()
         if (d.isEmpty()) return ""

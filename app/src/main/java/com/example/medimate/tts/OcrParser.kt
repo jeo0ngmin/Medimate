@@ -65,17 +65,6 @@ object OCRParser {
             .distinct()
             .toList()
 
-//        // 보조: 표 왼쪽 '약품명/성분' 라벨 근처의 단어들도 후보로
-//        val hintRegex = Regex("""약품명|약품|성분""")
-//        val bonus = mutableListOf<String>()
-//        if (hintRegex.containsMatchIn(text)) {
-//            // ‘정/캡슐’이 붙지 않아도 단어 2~5글자짜리 한글/영문 토큰을 추가 후보로
-//            val token = Regex("""[가-힣A-Za-z]{2,10}""")
-//            bonus += token.findAll(text).map { it.value }
-//                .filter { it.length in 2..12 }
-//                .take(20)
-//        }
-
         return (found)
             .distinct()
             .take(15)
